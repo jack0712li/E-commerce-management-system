@@ -68,6 +68,10 @@ const productSchema = new Schema(
 );
 //Virtuals
 //Total rating
+productSchema.virtual("leftQuality").get(function () {
+    const product = this;
+    return product?.totalQty - product?.totalSold;
+});
 
 productSchema.virtual("totalReviews").get(function () {
     const product = this;
