@@ -16,7 +16,7 @@ const UserSchema = new Schema({
         type: String,
         required: true,
     },
-    oorders: [
+    orders: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Order',
