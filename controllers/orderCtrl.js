@@ -57,6 +57,9 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
     await user.save();
 
 
+
+
+  //make payment (stripe)
   //convert order items to have same structure that stripe need
   const convertedOrders = orderItems.map((item) => {
     return {
@@ -71,25 +74,45 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
       quantity: item?.qty,
     };
   });
-
-    //make payment(stripe)
   const session = await stripe.checkout.sessions.create({
-    line_items:convertedOrders,
-    mode:"payment",
+    line_items: convertedOrders,
+    metadata: {
+      orderId: JSON.stringify(order?._id),
+    },
+    mode: "payment",
     success_url: "http://localhost:3000/success",
     cancel_url: "http://localhost:3000/cancel",
   });
-  res.send({url:session.url});
-    // //payment webhook
-    // //update the order status
-    // res.json({
-    //     success:true,
-    //     message:"Order placed successfully",
-    //     order,
-    //     user,
-    // });
-    
+  res.send({ url: session.url });
 
+});
 
+//@desc get all orders
+//@route GET /api/v1/orders
+//@access private
 
+export const getAllordersCtrl = asyncHandler(async (req, res) => {
+  //find all orders
+  const orders = await Order.find().populate("user");
+  res.json({
+    success: true,
+    message: "All orders",
+    orders,
+  });
+});
+
+//@desc get single order
+//@route GET /api/v1/orders/:id
+//@access private/admin
+
+export const getSingleOrderCtrl = asyncHandler(async (req, res) => {
+  //get the id from params
+  const id = req.params.id;
+  const order = await Order.findById(id);
+  //send response
+  res.status(200).json({
+    success: true,
+    message: "Single order",
+    order,
+  });
 });
