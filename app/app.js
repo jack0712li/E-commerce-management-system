@@ -41,6 +41,7 @@ app.post(
         response.status(400).send(`Webhook Error: ${err.message}`);
         return;
       }
+      console.log(event.type);
       if (event.type === "checkout.session.completed") {
         //update the order
         const session = event.data.object;
