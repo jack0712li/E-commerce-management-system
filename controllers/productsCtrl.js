@@ -3,10 +3,14 @@ import Product from "../model/Product.js";
 import asyncHandler from 'express-async-handler';
 import Brand from "../model/Brand.js";
 
+
 // @desc Create new product
 // @route POST /api/v1/products
 // @access Private/Admin
 export const createProductCtrl = asyncHandler((async (req, res) => {
+
+    const convertedImgs = req.files.map((file) => file.path);
+
     const {
         name,
         description,
@@ -46,6 +50,7 @@ export const createProductCtrl = asyncHandler((async (req, res) => {
         price,
         totalQty,
         brand,
+        images: convertedImgs,
     });
     // push the product into category
     categoryFound.products.push(product._id);
@@ -233,3 +238,4 @@ export const deleteProductCtrl = asyncHandler(async (req, res) => {
     });
     }
 );
+
