@@ -5,6 +5,7 @@ import asyncHandler from "express-async-handler";
 import User from '../model/User.js';
 import Product from '../model/Product.js';
 import Stripe from 'stripe';
+import Coupon from '../model/Coupon.js';
 //@desc create orders
 //@route POST /api/v1/orders
 //@access private
@@ -13,6 +14,23 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_KEY);
 
 export const createOrderCtrl = asyncHandler(async (req, res) => {
+    //get the coupon
+    const{coupon} = req?.query;
+
+    const couponFound = await Coupon.findOne({code: coupon?.toUpperCase()});
+
+
+    if(couponFound?.isExpired){
+      throw new Error("Coupon is expired");
+    }
+    if(!couponFound){
+      throw new Error("Coupon is not valid");
+    }
+
+    //get discount
+
+    const discount = couponFound?.discount/100;
+
     //Get the payload(customer,orderItems,shippingAddress,totalPrice)
     const{orderItems,shippingAddress,totalPrice} = req.body;
 
@@ -35,9 +53,8 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
         user:req?.userAuthId,
         orderItems,
         shippingAddress,
-        totalPrice,
+        totalPrice: couponFound? totalPrice - totalPrice * discount : totalPrice,
     });
-
 
     //Update the product qty
     const products = await Product.find({ _id: { $in: orderItems } });
