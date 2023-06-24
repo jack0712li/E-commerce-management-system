@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
+import path from 'path';
 import Order from '../model/Order.js';
 dotenv.config();
 import express from 'express';
@@ -87,7 +88,18 @@ app.post(
 
 //pass incoming data
 app.use(express.json());
+//url encoded
+app.use(express.urlencoded({ extended: true }));
+
+//server static files
+app.use(express.static("public"));
 //routes
+//Home route
+app.get("/", (req, res) => {
+  res.sendFile(path.join("public", "index.html"));
+});
+
+app.get("/",)
 app.use('/api/v1/users/',userRouter);
 app.use('/api/v1/products/',productRouter);
 app.use('/api/v1/categories/',categoryRouter);
